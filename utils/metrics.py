@@ -29,10 +29,10 @@ def total_divergence_at_time(t_idx, y, y_hat, lambda_=0):
                lambda_ * np.linalg.norm(theta_prime - theta_prime_hat)) 
     
 
-def max_divergence_at_time(t_idx, y, y_hat, lambda_=0):
+def global_error(t_idx, y, y_hat, lambda_=0):
     """
     Returns max_{t<T} (||theta(t) - theta_hat(t)|| + lambda_ ||theta'(t) - theta_hat'(t)||)
-    Agrees with global error (3.11) when lambda_=1 and t_idx is as large as possible
+    Agrees with spherical error (3.11) when lambda_=1 and t_idx is as large as possible
 
     y : True values of theta (first two columns) and theta' (last two columns)
     y_hat : predicted values of y
