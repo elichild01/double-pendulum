@@ -58,7 +58,7 @@ def derivatives(t, state, params):
     return np.array([dtheta1_dt, dz1_dt, dtheta2_dt, dz2_dt])
 
 # Simulation parameters
-t_eval = np.linspace(0, T_FINAL, NUM_TSTEPS)
+t_eval = np.linspace(0, T_FINAL, NUM_TSTEPS+1)
 
 
 # Store results in a list of dictionaries
