@@ -10,7 +10,7 @@ def time_to_divergence(y, y_hat, lambda_=0, tol=1e-5):
     lambda : regularization parameter
     tol : maximum error
     """
-    return min(np.where(one_step_error(y, y_hat, lambda_) >= tol))
+    return np.min(np.where(one_step_error(y, y_hat, lambda_) >= tol))
 
 
 def total_divergence_at_time(t_idx, y, y_hat, lambda_=0):
@@ -25,7 +25,7 @@ def total_divergence_at_time(t_idx, y, y_hat, lambda_=0):
     theta, theta_hat = y[:t_idx, :2], y_hat[:t_idx, :2]
     theta_prime, theta_prime_hat = y[:t_idx, 2:], y_hat[:t_idx, 2:]
     
-    return max(np.linalg.norm(theta - theta_hat) + 
+    return (np.linalg.norm(theta - theta_hat) + 
                lambda_ * np.linalg.norm(theta_prime - theta_prime_hat)) 
     
 
