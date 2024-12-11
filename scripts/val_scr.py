@@ -1,10 +1,10 @@
 
 import argparse
 import torch
-from models import ODEFunc
-from models import FeedForward
-import metrics
-from dataset import Pendulum_Data
+from models..models import ODEFunc
+from models..models import FeedForward
+import utils..metrics
+from utils..dataset import Pendulum_Data
 from torch.utils.data.dataloader import DataLoader
 from tqdm import tqdm
 from torchdiffeq import odeint
