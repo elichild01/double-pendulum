@@ -5,7 +5,7 @@ from scipy.integrate import solve_ivp
 
 
 class Pendulum_Data(Dataset):
-    def __init__(self, min_length=1, max_length=1, G=9.81, delta_t=0.005):
+    def __init__(self, min_length=1, max_length=1, G=9.81, delta_t=0.005, size=2**15):
         self.__dict__.update(locals())
 
     @staticmethod
@@ -53,8 +53,9 @@ class Pendulum_Data(Dataset):
         l1, l2 = np.clip(np.random.normal(1, .5, 2), 0.1, 3)
         m1, m2 = np.clip(np.random.normal(1, .5, 2), 0.1, 3)
         v1, v2 = np.random.normal(size=2)
-        return self.run_simulation(theta1_init=theta1_init, theta2_init=theta2_init, l1=l1, l2=l2, m1=m1, m2=m2, v1=v1,
+        theta =  self.run_simulation(theta1_init=theta1_init, theta2_init=theta2_init, l1=l1, l2=l2, m1=m1, m2=m2, v1=v1,
                                    v2=v2, t_eval=np.arange(0, t_final, self.delta_t))
+        return theta[:-1], theta[1:]
 
     def __len__(self):
-        return 2 ** 15
+        return self.size
