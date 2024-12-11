@@ -1,3 +1,9 @@
+
+from torch.utils.data.dataloader import Dataset
+import numpy as np
+from scipy.integrate import solve_ivp
+
+
 class Pendulum_Data(Dataset):
     def __init__(self, min_length=1, max_length=1, G=9.81, delta_t=0.005):
         self.__dict__.update(locals())
