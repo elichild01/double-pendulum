@@ -1,13 +1,13 @@
 
 import numpy as np
-from dataset import Pendulum_Data
+from utils..dataset import Pendulum_Data
 import torch
 import torch.nn as nn
 from torchdiffeq import odeint
 from torch.utils.data.dataloader import DataLoader
-from models import ODEFunc
-from models import FeedForward
-from models import PINNLoss
+from models..models import ODEFunc
+from models..models import FeedForward
+from models..models import PINNLoss
 import argparse
 from tqdm import tqdm
 
