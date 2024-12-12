@@ -76,6 +76,10 @@ class PINNLoss(nn.Module):
         self.g = g
 
     def forward(self, y_pred, y_true, input_data):
+        y_pred = y_pred[:-1]  # the last thing is time, and should be ignored
+        y_true = y_true[:-1]
+        input_data = input_data[:,:-1]
+
         data_loss = self.data_crit(y_pred, y_true)
 
         empirical_derivs = (y_pred - input_data[:, 4:]) / self.tstep
@@ -92,13 +96,13 @@ class ODEFunc(nn.Module):
         super(ODEFunc, self).__init__()
         self.num_calls = 0
         self.net = nn.Sequential(
-            nn.Linear(4, 64),  # state: (theta1, w1, theta2, w2)
+            nn.Linear(5, 64),  # state: (theta1, w1, theta2, w2, t)
             nn.Tanh(),
             nn.Linear(64, 128),
             nn.Tanh(),
             nn.Linear(128, 64),
             nn.Tanh(),
-            nn.Linear(64, 4),
+            nn.Linear(64, 5),
         )
 
     def forward(self, t, y):

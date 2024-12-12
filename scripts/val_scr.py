@@ -1,10 +1,13 @@
 
+import sys
+sys.path.append(sys.path[0]+"\\\\..")  # assuming the first element of sys.path is the path to the scripts folder, this allows imports from within double-pendulum
+
 import argparse
 import torch
-from models..models import ODEFunc
-from models..models import FeedForward
-import utils..metrics
-from utils..dataset import Pendulum_Data
+from models.models import ODEFunc
+from models.models import FeedForward
+import utils.metrics
+from utils.dataset import Pendulum_Data
 from torch.utils.data.dataloader import DataLoader
 from tqdm import tqdm
 from torchdiffeq import odeint
@@ -44,7 +47,7 @@ tes = []
 ges = []
 for i in tqdm(range(args.val_size)):
     for X_batch, y_batch in dl:
-        X_batch, y_batch = X_batch.to(device), y_batch.to(device)
+        X_batch, y_batch = X_batch.to(torch.float), y_batch.to(torch.float)
 
         # get prediction
         y_pred = None

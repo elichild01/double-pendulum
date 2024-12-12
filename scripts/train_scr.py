@@ -1,13 +1,16 @@
 
+import sys
+sys.path.append(sys.path[0]+"\\\\..")  # assuming the first element of sys.path is the path to the scripts folder, this allows imports from within double-pendulum
+
 import numpy as np
-from utils..dataset import Pendulum_Data
+from utils.dataset import Pendulum_Data
 import torch
 import torch.nn as nn
 from torchdiffeq import odeint
 from torch.utils.data.dataloader import DataLoader
-from models..models import ODEFunc
-from models..models import FeedForward
-from models..models import PINNLoss
+from models.models import ODEFunc
+from models.models import FeedForward
+from models.models import PINNLoss
 import argparse
 from tqdm import tqdm
 
@@ -49,7 +52,6 @@ losses = []
 # Training
 data = Pendulum_Data(args.min_steps, args.max_steps, args.G, args.delta_t, args.batch_size)
 dl = DataLoader(data, batch_size=args.batch_size)
-epoch = 0
 train_losses = []
 val_losses = []
 
@@ -57,19 +59,22 @@ for i in tqdm(range(args.num_epochs)):
     train_losses_local = []
     # each batch is as long as the dataset, so an epoch is one batch
     for X_batch, y_batch in dl:
-        X_batch, y_batch = X_batch.to(device), y_batch.to(device)
+        X_batch, y_batch = X_batch.to(torch.float), y_batch.to(torch.float)
         optimizer.zero_grad()
 
-        # get prediction
+        # get prediction and make a tuple to pass to the loss
         y_pred = None
+        loss_args = None
         if args.model == 'PINN':
             y_pred = model(X_batch)
+            loss_args = (y_pred, y_batch, X_batch)
         else:
-            y_pred = odeint(model, X_batch[0, :, 4:], args.delta_t * np.arange(len(X_batch)+1))[1:]
-            y_batch = y_batch[0, :, 4:]  # remove mass/length information from outputs
+            y_pred = odeint(model, X_batch[:, :, 4:], args.delta_t * torch.arange(len(X_batch)+1))[1:]
+            y_batch = y_batch[:, :, 4:]  # remove mass/length information from outputs
+            loss_args = (y_pred.squeeze(), y_batch.squeeze())
 
         # calculate loss and backprop
-        loss = criterion(y_pred, y_batch, X_batch)
+        loss = criterion(*loss_args)
         loss.backward()
         train_losses_local.append(loss.item())
         optimizer.step()
@@ -84,16 +89,28 @@ for i in tqdm(range(args.num_epochs)):
             for X_batch, y_batch in dl:
                 X_batch, y_batch = X_batch.to(torch.float), y_batch.to(torch.float)
                 optimizer.zero_grad()
-                y_pred = model(X_batch)
-                loss = criterion(y_pred, y_batch, X_batch)
+
+                # get prediction
+                y_pred = None
+                loss_args = None
+                if args.model == 'PINN':
+                    y_pred = model(X_batch)
+                    loss_args = (y_pred, y_batch, X_batch)
+                else:
+                    y_pred = odeint(model, X_batch[:, :, 4:], args.delta_t * torch.arange(len(X_batch) + 1))[1:]
+                    y_batch = y_batch[:, :, 4:]  # remove mass/length information from outputs
+                    loss_args = (y_pred.squeeze(), y_batch.squeeze())
+
+                # calculate loss, then average
+                loss = criterion(*loss_args)
                 val_losses_local.append(loss.item())
         val_losses.append(np.mean(val_losses_local))
         model.train()
 
     if (i + 1) % args.save_every == 0:
-        torch.save(model.state_dict(), f'{args.path}_{epoch}.pt')
-        torch.save(train_losses, f'{args.path}_{epoch}_train_losses.pt')
-        torch.save(val_losses, f'{args.path}_{epoch}_val_losses.pt')
+        torch.save(model.state_dict(), f'{args.path}_{i}.pt')
+        torch.save(train_losses, f'{args.path}_{i}_train_losses.pt')
+        torch.save(val_losses, f'{args.path}_{i}_val_losses.pt')
 
 
 
