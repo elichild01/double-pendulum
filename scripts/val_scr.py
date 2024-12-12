@@ -52,10 +52,10 @@ for i in tqdm(range(args.val_size)):
         # get prediction
         y_pred = None
         if args.model == 'PINN':
-            y_pred = model(X_batch)
+            y_pred = model(X_batch[:, :, :-1])
         else:
-            y_pred = odeint(model, X_batch[0, :, 4:], args.delta_t * torch.arange(len(X_batch) + 1))[1:]
-            y_batch = y_batch[0, :, 4:]  # remove mass/length information from outputs
+            y_pred = odeint(model, X_batch[0, :, 4:-1], args.delta_t * torch.arange(len(X_batch) + 1))[1:]
+        y_batch = y_batch[0, :, 4:-1]  # remove mass/length/time information from outputs
 
         y_pred = y_pred.cpu().detach().numpy().squeeze()
         y_batch = y_batch.cpu().detach().numpy().squeeze()

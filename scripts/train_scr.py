@@ -27,7 +27,7 @@ parser.add_argument('--delta_t', type=float, default=0.005)
 parser.add_argument('--lr', type=float, default=1e-3)
 parser.add_argument('--weight_decay', type=float, default=1e-4)
 parser.add_argument('--batch_size', type=int, default=1)
-parser.add_argument('--lambda', type=float, default=0.5)
+parser.add_argument('--lam', type=float, default=0.5)
 parser.add_argument('--num_epochs', type=int, default=1000)
 parser.add_argument('--save_every', type=int, default=100)
 parser.add_argument('--val_every', type=int, default=25)
@@ -41,7 +41,7 @@ model = None
 criterion = None
 if args.model == 'PINN':
     model = FeedForward()
-    criterion = PINNLoss(args.delta_t, args['lambda'], args.G)
+    criterion = PINNLoss(args.delta_t, args.lam, args.G)
 else:
     model = ODEFunc()
     criterion = nn.MSELoss()
@@ -66,8 +66,9 @@ for i in tqdm(range(args.num_epochs)):
         y_pred = None
         loss_args = None
         if args.model == 'PINN':
-            y_pred = model(X_batch)
-            loss_args = (y_pred, y_batch, X_batch)
+            # the last element of X_batch is time, and should not be included
+            y_pred = model(X_batch[:, :, :-1])
+            loss_args = (y_pred, y_batch[:, :, 4:-1], X_batch[:, :, 4:-1])
         else:
             y_pred = odeint(model, X_batch[:, :, 4:], args.delta_t * torch.arange(len(X_batch)+1))[1:]
             y_batch = y_batch[:, :, 4:]  # remove mass/length information from outputs
@@ -94,8 +95,9 @@ for i in tqdm(range(args.num_epochs)):
                 y_pred = None
                 loss_args = None
                 if args.model == 'PINN':
-                    y_pred = model(X_batch)
-                    loss_args = (y_pred, y_batch, X_batch)
+                    # the last element of X_batch is time, and should not be included
+                    y_pred = model(X_batch[:, :, :-1])
+                    loss_args = (y_pred, y_batch[:, :, 4:-1], X_batch[:, :, 4:-1])
                 else:
                     y_pred = odeint(model, X_batch[:, :, 4:], args.delta_t * torch.arange(len(X_batch) + 1))[1:]
                     y_batch = y_batch[:, :, 4:]  # remove mass/length information from outputs

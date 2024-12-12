@@ -27,8 +27,7 @@ def derivatives(t, state, g):
     m1, m2, L1, L2 = 1,1,1,1
     if torch.nan in state: pdb.set_trace()
     if torch.inf in state or -torch.inf in state: pdb.set_trace()
-    theta1, theta2, z1, z2 = torch.split(state, 1, dim=1)
-    # print(theta1, theta2, z1, z2)
+    theta1, theta2, z1, z2 = torch.split(state, 1, dim=2)
     delta = theta2 - theta1
     if torch.nan in delta: pdb.set_trace()
     if torch.inf in delta or -torch.inf in delta: pdb.set_trace()
@@ -54,13 +53,11 @@ def derivatives(t, state, g):
         / denominator2
     )
 
-    return np.column_stack([dtheta1_dt, dz1_dt, dtheta2_dt, dz2_dt])
+    return np.concatenate([dtheta1_dt, dz1_dt, dtheta2_dt, dz2_dt], axis=2)
 
 def rk4_derivs(state, f, h, g):
     t = 0
     k1 = f(t, state, g)
-    # print(state.shape)
-    # print(k1.shape)
     k2 = f(t + h*0.5, state + k1*h*0.5, g)
     k3 = f(t + h*0.5, state + k2*h*0.5, g)
     k4 = f(t + h, state + k3*h, g)
@@ -76,14 +73,10 @@ class PINNLoss(nn.Module):
         self.g = g
 
     def forward(self, y_pred, y_true, input_data):
-        y_pred = y_pred[:-1]  # the last thing is time, and should be ignored
-        y_true = y_true[:-1]
-        input_data = input_data[:,:-1]
-
         data_loss = self.data_crit(y_pred, y_true)
 
-        empirical_derivs = (y_pred - input_data[:, 4:]) / self.tstep
-        true_derivs = torch.tensor(rk4_derivs(input_data, derivatives, self.tstep, self.g))[:, 4:]
+        empirical_derivs = (y_pred - input_data) / self.tstep
+        true_derivs = torch.tensor(rk4_derivs(input_data, derivatives, self.tstep, self.g))
         physics_loss = self.physics_crit(empirical_derivs, true_derivs)
 
         return self.lamb * data_loss + (1 - self.lamb) * physics_loss
