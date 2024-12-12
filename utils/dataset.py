@@ -48,7 +48,7 @@ class Pendulum_Data(Dataset):
             [[l1] * len(t_eval), [l2] * len(t_eval), [m1] * len(t_eval), [m2] * len(t_eval), *solution.y, t_eval]).T
 
     def __getitem__(self, i):
-        t_final = np.random.randint(self.min_length, self.max_length + 1) * self.delta_t
+        t_final = (np.random.randint(self.min_length, self.max_length + 1)+1) * self.delta_t  # the extra +1 makes it so the arange has the right number of steps
         theta1_init, theta2_init = np.random.uniform(-np.pi, np.pi, 2)
         l1, l2 = np.clip(np.random.normal(1, .5, 2), 0.1, 3)
         m1, m2 = np.clip(np.random.normal(1, .5, 2), 0.1, 3)

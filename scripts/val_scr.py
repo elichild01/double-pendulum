@@ -6,12 +6,11 @@ import argparse
 import torch
 from models.models import ODEFunc
 from models.models import FeedForward
-import utils.metrics
+from utils.metrics import *
 from utils.dataset import Pendulum_Data
 from torch.utils.data.dataloader import DataLoader
 from tqdm import tqdm
 from torchdiffeq import odeint
-import numpy as np
 
 
 # Get command line arguments for the filepath and model type
@@ -34,6 +33,7 @@ if args.model == 'PINN':
 else:
     model = ODEFunc()
 model = model.to(device=device)
+model.load_state_dict(torch.load(args.path, weights_only=True))
 model.eval()
 
 data = Pendulum_Data(args.num_steps, args.num_steps, args.G, args.delta_t, 1)
@@ -54,17 +54,17 @@ for i in tqdm(range(args.val_size)):
         if args.model == 'PINN':
             y_pred = model(X_batch)
         else:
-            y_pred = odeint(model, X_batch[0, :, 4:], args.delta_t * np.arange(len(X_batch) + 1))[1:]
+            y_pred = odeint(model, X_batch[0, :, 4:], args.delta_t * torch.arange(len(X_batch) + 1))[1:]
             y_batch = y_batch[0, :, 4:]  # remove mass/length information from outputs
 
         y_pred = y_pred.cpu().detach().numpy().squeeze()
         y_batch = y_batch.cpu().detach().numpy().squeeze()
 
     # calculate metrics
-    ose = metrics.one_step_error(y_pred, y_batch, lambda_=1)
-    ttd = metrics.time_to_divergence(y_pred, y_batch, lambda_=1) * args.delta_t
-    te = [metrics.total_divergence_at_time(idx, y_pred, y_batch, lambda_=1) for idx in range(len(y_pred))]
-    ge = [metrics.global_error(idx, y_pred, y_batch, lambda_=1) for idx in range(1,len(y_pred))]
+    ose = one_step_error(y_pred, y_batch, lambda_=1)
+    ttd = time_to_divergence(y_pred, y_batch, lambda_=1) * args.delta_t
+    te = [total_divergence_at_time(idx, y_pred, y_batch, lambda_=1) for idx in range(len(y_pred))]
+    ge = [global_error(idx, y_pred, y_batch, lambda_=1) for idx in range(1,len(y_pred))]
 
     oses.append(ose)
     ttds.append(ttd)
