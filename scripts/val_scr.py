@@ -54,8 +54,8 @@ for i in tqdm(range(args.num_epochs)):
         if args.model == 'PINN':
             y_pred = model(X_batch[:, :, :-1])
         else:
-            y_pred = odeint(model, X_batch[0, :, 4:-1], args.delta_t * torch.arange(len(X_batch) + 1))[1:]
-        y_batch = y_batch[0, :, 4:-1]  # remove mass/length/time information from outputs
+            y_pred = odeint(model, X_batch[:, :, 4:], args.delta_t * torch.arange(len(X_batch) + 1))[1:, :, :, :-1]
+        y_batch = y_batch[:, :, 4:-1]  # remove mass/length/time information from outputs
 
         y_pred = y_pred.cpu().detach().numpy().squeeze()
         y_batch = y_batch.cpu().detach().numpy().squeeze()
