@@ -1,0 +1,49 @@
+
+train_scr.py requires one argument, namely "path." This is the filepath to which it should save the model weights and
+losses. The weights will be saved to "path_{epoch#}.pt" and losses to "path_{epoch#}_train_losses.pt" and
+"path_{epoch#}_val_losses.pt."
+
+val_scr.py requires two arguments, a load path called "path" and a save path called "save_path." The load path should be
+of the form "path_{epoch#}.pt," that is, it should include the full file name and extension. Like in train_scr.py, the
+save_path does not need file extensions. It will create a file for otes (one time error), another for ttds (time to
+divergence), another for tes (total error) and a final one for ges (general error). Optional parameters are described
+below.
+
+
+
+--batch_size : the number of time series to feed into the model at once. defaults to 1. applies only to train_scr.py.
+
+--delta_t : the size of a time step. defaults to 0.005, so 200 steps is 1 second.
+
+--G : acceleration due to gravity. defaults to 9.81.
+
+-h, --help : throws an error. theoretically ought to show this menu.
+
+--lam : the convex parameter lambda to feed into the PINN loss. should be between 0 and 1. higher weights the physics
+        loss more heavily. defaults to 0.5. applies only to train_scr.py.
+
+--lr : the learning rate. defaults to 1e-3. applies only to train_scr.py.
+
+--max_steps : the maximum number of time steps to sample in each trajectory. defaults to 1. applies only to
+              train_scr.py.
+
+--min_steps : the minimum number of time steps to sample in each trajectory. defaults to 1. to sample trajectories of
+              fixed length, set this equal to min_steps. applies only to train_scr.py.
+
+--model : the model to train or evaluate. must be either PINN or NODE.
+
+--num_epochs : the number of epochs to run. each epoch is exactly one batch, so num_epochs * batch_size is the number of
+               trajectories seen in train_scr.py. in val_scr.py, batch_size is hardcoded to one, so num_epochs is number
+               of trajectories seen. defaults to 1000.
+
+--num_steps : the number of time steps to sample in each trajectory. defaults to 1000. applies only to val_scr.py.
+
+--save_every : how many epochs to wait between saving. defaults to 100. weights and losses are saved this frequently.
+               applies only to train_scr.py.
+
+--val_every : how often to calculate test loss during training. defaults to 25. applies only to train_scr.py.
+
+--val_size : the number of epochs to run in the validation loop while training. defaults to 100.
+
+--weight_decay : the weight decay. defaults to 1e-4. applies only to train_scr.py.
+

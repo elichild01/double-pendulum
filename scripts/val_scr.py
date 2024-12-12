@@ -21,7 +21,7 @@ parser.add_argument('--model', type=str, choices=['PINN', 'NODE'], default='NODE
 parser.add_argument('--num_steps', type=int, default=1000)
 parser.add_argument('--G', type=float, default=9.81)
 parser.add_argument('--delta_t', type=float, default=0.005)
-parser.add_argument('--val_size', type=int, default=100)
+parser.add_argument('--num_epochs', type=int, default=100)
 args = parser.parse_args()
 
 
@@ -45,7 +45,7 @@ oses = []
 ttds = []
 tes = []
 ges = []
-for i in tqdm(range(args.val_size)):
+for i in tqdm(range(args.num_epochs)):
     for X_batch, y_batch in dl:
         X_batch, y_batch = X_batch.to(torch.float), y_batch.to(torch.float)
 
