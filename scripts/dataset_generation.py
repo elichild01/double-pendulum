@@ -5,24 +5,20 @@ from tqdm import tqdm
 
 # Set constants/parameters
 G = 9.81  # acceleration due to gravity (m/s^2)
-T_FINAL = 10
+T_FINAL = 12
 NUM_TSTEPS = 2000
-RANDOM_PARAMS = True
-DATASET_NAME = 'simulations-random_parameters-gitsized'
-# L1 = 1.0  # length of the first rod (m)
-# L2 = 1.0  # length of the second rod (m)
-# m1 = 1.0  # mass of the first bob (kg)
-# m2 = 1.0  # mass of the second bob (kg)
+RANDOM_PARAMS = False
+DATASET_NAME = 'test-for-max-velocity'
 if RANDOM_PARAMS:
     n_simulations = 1000
 else:
-    length1_vals = [1, 2]
+    length1_vals = [1]
     length2_vals = [1]
-    mass1_vals = [1, 2]
+    mass1_vals = [1]
     mass2_vals = [1]
     v1_init_vals = [0]
     v2_init_vals = [0]
-    num_thetas = 50
+    num_thetas = 100
     # Initial conditions sampling
     theta1_vals = np.linspace(0, 2*np.pi, num_thetas)
     theta2_vals = np.linspace(0, 2*np.pi, num_thetas)
