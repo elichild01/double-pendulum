@@ -1,6 +1,6 @@
 import numpy as np
 
-def time_to_divergence(y, y_hat, lambda_=0, tol=1e-5):
+def time_to_divergence(y, y_hat, lambda_=0, tol=1e-1):
     """
     Returns min {t : (||theta(t) - theta_hat(t)|| + lambda_ ||theta'(t) - theta_hat'(t)||) >= tol}
 
@@ -10,7 +10,8 @@ def time_to_divergence(y, y_hat, lambda_=0, tol=1e-5):
     lambda : regularization parameter
     tol : maximum error
     """
-    return np.min(np.where(one_step_error(y, y_hat, lambda_) >= tol))
+    idx = np.where(one_step_error(y, y_hat, lambda_) >= tol)
+    return np.min(idx[0]) if len(idx[0]) != 0 else len(y_hat)
 
 
 def total_divergence_at_time(t_idx, y, y_hat, lambda_=0):

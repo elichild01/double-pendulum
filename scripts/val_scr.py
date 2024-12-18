@@ -22,6 +22,7 @@ parser.add_argument('--num_steps', type=int, default=1000)
 parser.add_argument('--G', type=float, default=9.81)
 parser.add_argument('--delta_t', type=float, default=0.005)
 parser.add_argument('--num_epochs', type=int, default=100)
+parser.add_argument('--lam', type=float, default=1)
 args = parser.parse_args()
 
 
@@ -61,10 +62,10 @@ for i in tqdm(range(args.num_epochs)):
         y_batch = y_batch.cpu().detach().numpy().squeeze()
 
     # calculate metrics
-    ose = one_step_error(y_pred, y_batch, lambda_=1)
-    ttd = time_to_divergence(y_pred, y_batch, lambda_=1) * args.delta_t
-    te = [total_divergence_at_time(idx, y_pred, y_batch, lambda_=1) for idx in range(len(y_pred))]
-    ge = [global_error(idx, y_pred, y_batch, lambda_=1) for idx in range(1,len(y_pred))]
+    ose = one_step_error(y_pred, y_batch, lambda_=args.lam)
+    ttd = time_to_divergence(y_pred, y_batch, lambda_=args.lam) * args.delta_t
+    te = [total_divergence_at_time(idx, y_pred, y_batch, lambda_=args.lam) for idx in range(len(y_pred))]
+    ge = [global_error(idx, y_pred, y_batch, lambda_=args.lam) for idx in range(1,len(y_pred))]
 
     oses.append(ose)
     ttds.append(ttd)

@@ -19,8 +19,9 @@ below.
 
 -h, --help : throws an error. theoretically ought to show this menu.
 
---lam : the convex parameter lambda to feed into the PINN loss. should be between 0 and 1. higher weights the physics
-        loss more heavily. defaults to 0.5. applies only to train_scr.py.
+--lam : in train_scr.py, the convex parameter lambda to feed into the PINN loss. should be between 0 and 1. higher lam
+        weights the physics loss more heavily. defaults to 0.5 for equal weighting.
+        in val_scr.py, the parameter that weights how much to penalize errors in theta'. defaults to 1 for equal weight.
 
 --lr : the learning rate. defaults to 1e-3. applies only to train_scr.py.
 
